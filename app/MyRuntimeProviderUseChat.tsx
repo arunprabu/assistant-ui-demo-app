@@ -1,5 +1,6 @@
 "use client";
 
+import { Weather } from "@/components/tool-ui/Weather";
 import {
   AssistantRuntimeProvider,
   CompositeAttachmentAdapter,
@@ -9,12 +10,11 @@ import {
   WebSpeechSynthesisAdapter,
 } from "@assistant-ui/react";
 
-export function MyRuntimeProvider({
+export function MyRunTimeProviderUseChat({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   // The following works well with speech and attachment
   const runtime = useEdgeRuntime({
     api: "/api/chat",
@@ -22,13 +22,14 @@ export function MyRuntimeProvider({
       speech: new WebSpeechSynthesisAdapter(),
       attachments: new CompositeAttachmentAdapter([
         new SimpleImageAttachmentAdapter(),
-        new SimpleTextAttachmentAdapter()
+        new SimpleTextAttachmentAdapter(),
       ]),
     },
   });
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
+      <Weather />
       {children}
     </AssistantRuntimeProvider>
   );

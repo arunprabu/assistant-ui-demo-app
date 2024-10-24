@@ -26,8 +26,9 @@ export async function continueConversation(
 
   const result = await streamUI({
     model: openai("gpt-4o"),
-    messages: [...history.get(), { role: "user", content: input }],
+    messages: [...history.get(), { role: "user", content: input}],
     text: ({ content, done }) => {
+      console.log(content);
       if (done) {
         history.done((messages: ServerMessage[]) => [
           ...messages,
