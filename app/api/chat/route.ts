@@ -13,26 +13,39 @@ function getWeather({ city, unit }) {
 }
 
 export async function POST(req: Request) {
-  const { messages }: { messages: Message[] } = await req.json();
+  const { id, messages }: { id: string; messages: Array<Message> } =
+    await req.json();
+
+  const coreMessages = convertToCoreMessages(messages);
+  console.log(coreMessages);
 
   const result = await streamText({
     model: openai("gpt-4o"),
-    messages: convertToCoreMessages(messages),
+    messages: coreMessages,
     tools: {
-      displayWeather: {
-        description: "Display the weather for a location",
+      getWeather: {
+        description: "Get the weather for a location",
         parameters: z.object({
-          latitude: z.number(),
-          longitude: z.number(),
+          city: z.string().describe("The city to get the weather for"),
+          unit: z
+            .enum(["C"])
+            .describe("The unit to display the temperature in"),
         }),
-        execute: async function ({ latitude, longitude }) {
-          const props = await getWeather({ latitude, longitude });
-          return props;
+        execute: async ({ city, unit }) => {
+          const weather = {
+            value: 24,
+            description: "Sunny",
+          };
+
+          return `It is currently ${weather.value}°${unit} and ${weather.description} in ${city}!`;
         },
       },
     },
     maxSteps: 5, // allow up to 5 steps
     onFinish: async ({ responseMessages }) => {
+      console.log(JSON.stringify(responseMessages));
+      console.log(id);
+
       // Save Chat -
       // Refer: https://sdk.vercel.ai/examples/next/state-management/save-messages
       // try {
